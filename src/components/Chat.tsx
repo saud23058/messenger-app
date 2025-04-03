@@ -3,9 +3,16 @@
 import { ws } from "@/lib/ws";
 import React, { useEffect, useState } from "react";
 
+interface messageType {
+  userId: string;
+  type: "create" | "private" | "group";
+  message: string;
+  to: string;
+}
+
 const Chat = () => {
   const [messages, setMessages] = useState<string[]>([]);
-  const [message, setMessage] = useState<string>("");
+  const [message, setMessage] = useState<messageType | undefined>(undefined);
 
   useEffect(() => {
     ws.onopen = () => {
@@ -13,7 +20,7 @@ const Chat = () => {
     };
 
     ws.onmessage = (event) => {
-      setMessages((prevMessages) => [...prevMessages, event.data.toString()]);
+      setMessages((pre) => [...pre, event.data.toString()]);
     };
 
     ws.onclose = () => {
@@ -26,9 +33,10 @@ const Chat = () => {
   }, []);
 
   const sendMessage = () => {
-    if (message.trim() !== "") {
-      ws.send(message);
-      setMessage("");
+    if (message !== undefined) {
+      console.log(message);
+
+      ws.send(JSON.stringify(message));
     }
   };
 
@@ -38,14 +46,64 @@ const Chat = () => {
         <p key={index}>{msg}</p>
       ))}
       {/* Input for message */}
-      <input
+      {/* <input
         type="text"
         value={message}
         placeholder="Enter message"
         onChange={(e) => setMessage(e.target.value)}
+      /> */}
+
+      <input
+        type="text"
+        placeholder="send to "
+        onChange={(e) =>
+          setMessage((pre) => {
+            return pre
+              ? { ...pre, to: e.target.value }
+              : {
+                  userId: "",
+                  type: "private",
+                  message: "",
+                  to: e.target.value,
+                };
+          })
+        }
       />
 
-      <button onClick={sendMessage}>Send</button>
+      <input
+        type="text"
+        placeholder="message..."
+        onChange={(e) =>
+          setMessage((pre) => {
+            return pre
+              ? { ...pre, message: e.target.value }
+              : {
+                  userId: "",
+                  type: "private",
+                  message: e.target.value,
+                  to: "",
+                };
+          })
+        }
+      />
+      <button onClick={sendMessage}>Send to private</button>
+      <input
+        type="text"
+        placeholder="create user"
+        onChange={(e) =>
+          setMessage((pre) => {
+            return pre
+              ? { ...pre, userId: e.target.value }
+              : {
+                  userId: e.target.value,
+                  type: "create",
+                  message: "",
+                  to: "",
+                };
+          })
+        }
+      />
+      <button onClick={sendMessage}>Create user</button>
     </div>
   );
 };
