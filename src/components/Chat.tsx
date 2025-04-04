@@ -1,109 +1,119 @@
 "use client";
 
 import { ws } from "@/lib/ws";
+import { messageType } from "@/types";
 import React, { useEffect, useState } from "react";
-
-interface messageType {
-  userId: string;
-  type: "create" | "private" | "group";
-  message: string;
-  to: string;
-}
 
 const Chat = () => {
   const [messages, setMessages] = useState<string[]>([]);
   const [message, setMessage] = useState<messageType | undefined>(undefined);
 
   useEffect(() => {
-    ws.onopen = () => {
-      console.log("Connection is Open");
-    };
-
+    ws.onopen = () => {};
     ws.onmessage = (event) => {
-      setMessages((pre) => [...pre, event.data.toString()]);
+      setMessages((prev) => [...prev, event.data.toString()]);
     };
+    ws.onclose = () => {};
 
-    ws.onclose = () => {
-      console.log("Connection Closed");
-    };
-
-    return () => {
-      ws.close();
-    };
+    return () => ws.close();
   }, []);
 
   const sendMessage = () => {
-    if (message !== undefined) {
-      console.log(message);
-
+    if (message) {
       ws.send(JSON.stringify(message));
     }
   };
 
   return (
-    <div className="flex flex-col gap-3">
-      {messages.map((msg, index) => (
-        <p key={index}>{msg}</p>
-      ))}
-      {/* Input for message */}
-      {/* <input
-        type="text"
-        value={message}
-        placeholder="Enter message"
-        onChange={(e) => setMessage(e.target.value)}
-      /> */}
+    <div className="max-w-xl mx-auto p-4">
+      <h2 className="text-2xl font-semibold text-center mb-4">
+        🗨️ Simple Chat
+      </h2>
 
-      <input
-        type="text"
-        placeholder="send to "
-        onChange={(e) =>
-          setMessage((pre) => {
-            return pre
-              ? { ...pre, to: e.target.value }
-              : {
-                  userId: "",
-                  type: "private",
-                  message: "",
-                  to: e.target.value,
-                };
-          })
-        }
-      />
+      <h2 className="text-2xl font-semibold text-center mb-4 text-green-500">
+        🗨️ Can also Create/Join Group having same ID
+      </h2>
 
-      <input
-        type="text"
-        placeholder="message..."
-        onChange={(e) =>
-          setMessage((pre) => {
-            return pre
-              ? { ...pre, message: e.target.value }
-              : {
-                  userId: "",
-                  type: "private",
-                  message: e.target.value,
-                  to: "",
-                };
-          })
-        }
-      />
-      <button onClick={sendMessage}>Send to private</button>
-      <input
-        type="text"
-        placeholder="create user"
-        onChange={(e) =>
-          setMessage((pre) => {
-            return pre
-              ? { ...pre, userId: e.target.value }
-              : {
-                  userId: e.target.value,
-                  type: "create",
-                  message: "",
-                  to: "",
-                };
-          })
-        }
-      />
-      <button onClick={sendMessage}>Create user</button>
+      <div className="bg-gray-100 h-64 overflow-y-auto rounded-lg p-4 shadow mb-4">
+        {messages.map((msg, index) => (
+          <p
+            key={index}
+            className="text-sm bg-white p-2 rounded mb-2 shadow-sm"
+          >
+            {msg}
+          </p>
+        ))}
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-2">
+        <input
+          type="text"
+          className="p-2 rounded border border-gray-300 focus:outline-none focus:ring focus:ring-blue-200"
+          placeholder="User ID (for creation)"
+          onChange={(e) =>
+            setMessage((prev) => {
+              return prev
+                ? { ...prev, userId: e.target.value, type: "create" }
+                : {
+                    userId: e.target.value,
+                    type: "create",
+                    message: "",
+                    to: "",
+                  };
+            })
+          }
+        />
+        <button
+          onClick={sendMessage}
+          className="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 rounded"
+        >
+          Create User
+        </button>
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-2">
+        <input
+          type="text"
+          className="p-2 rounded border border-gray-300 focus:outline-none focus:ring focus:ring-purple-200"
+          placeholder="Send to (userId)"
+          onChange={(e) =>
+            setMessage((prev) => {
+              return prev
+                ? { ...prev, to: e.target.value, type: "private" }
+                : {
+                    userId: "",
+                    to: e.target.value,
+                    message: "",
+                    type: "private",
+                  };
+            })
+          }
+        />
+        <input
+          type="text"
+          className="p-2 rounded border border-gray-300 focus:outline-none focus:ring focus:ring-purple-200"
+          placeholder="Your message"
+          onChange={(e) =>
+            setMessage((prev) => {
+              return prev
+                ? { ...prev, message: e.target.value, type: "private" }
+                : {
+                    userId: "",
+                    to: "",
+                    message: e.target.value,
+                    type: "private",
+                  };
+            })
+          }
+        />
+      </div>
+
+      <button
+        onClick={sendMessage}
+        className="w-full bg-green-600 hover:bg-green-700 text-white font-semibold py-2 rounded mt-2"
+      >
+        Send Private Message
+      </button>
     </div>
   );
 };

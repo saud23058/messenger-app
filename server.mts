@@ -2,68 +2,41 @@ import { WebSocketServer, WebSocket } from "ws";
 
 const wss = new WebSocketServer({ port: 8080 });
 
-const user = new Map<string, WebSocket>();
+const users = new Map<string, WebSocket>();
 
-const createGroup = new Map<string, Set<string>>();
-
-const groups = new Map<string, WebSocket>();
 
 wss.on("connection", (ws) => {
-  console.log("New client connected");
+  ws.send("Welcome to the WebSocket server");
+
   ws.on("message", (data) => {
-    console.log(data.toString());
+    try {
+      const { type, userId, message, to } = JSON.parse(data.toString());
 
-    const { type, userId, message, to } = JSON.parse(data.toString());
+      switch (type) {
+        case "create":
+          users.set(userId, ws);
+          ws.send(`✅ User ${userId} created successfully`);
+          break;
 
-    if (type === "create") {
-      user.set(userId, ws);
-      ws.send("Successfully created Account");
-    }
-    if (type === "private") {
-      const receiver = user.get(to);
-      console.log("Receiver:" + receiver?.toString());
-
-      if (receiver) {
-        receiver.send(message);
-      } else {
-        ws.send("Not found the receiver");
-      }
-    }
-
-    if (type === "create_group") {
-      createGroup.set(message, new Set[userId]());
-      groups.set(message, ws);
-      ws.send("Group created successfully");
-    }
-
-    if (type === "join_group") {
-      const getGroup = createGroup.get(message);
-      if (getGroup) {
-        getGroup.add(userId);
-      } else {
-        ws.send("Not found the Group");
-      }
-    }
-
-    if (type === "group_message") {
-      const group = createGroup.get(to);
-
-      if (group) {
-        group.forEach((member) => {
-          const memId = user.get(member);
-          if (memId) {
-            memId.send(message);
+        case "private":
+          const receiver = users.get(to);
+          if (receiver) {
+            receiver.send(`📩 ${userId}: ${message}`);
+          } else {
+            ws.send("❌ Receiver not found");
           }
-        });
+          break;
+
+        default:
+          ws.send("❗ Unknown message type");
       }
+    } catch (err) {
+      console.error("Error handling message:", err);
+      ws.send("❌ Error processing your request");
     }
   });
-
-  ws.send("Thank you for joining this server");
 
   ws.on("close", () => {
     console.log("Client disconnected");
   });
 });
-
-console.log("WebSocket server running on ws://localhost:8080");

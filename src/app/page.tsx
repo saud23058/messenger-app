@@ -4,8 +4,7 @@ const Home = () => {
   
 
   return <div>
-    <Chat/>
-  </div>;
+   <Chat/>  </div>;
 };
 
 export default Home;
