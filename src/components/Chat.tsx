@@ -30,10 +30,6 @@ const Chat = () => {
         🗨️ Simple Chat
       </h2>
 
-      <h2 className="text-2xl font-semibold text-center mb-4 text-green-500">
-        🗨️ Can also Create/Join Group having same ID
-      </h2>
-
       <div className="bg-gray-100 h-64 overflow-y-auto rounded-lg p-4 shadow mb-4">
         {messages.map((msg, index) => (
           <p
@@ -112,7 +108,7 @@ const Chat = () => {
         onClick={sendMessage}
         className="w-full bg-green-600 hover:bg-green-700 text-white font-semibold py-2 rounded mt-2"
       >
-        Send Private Message
+        Send Message
       </button>
     </div>
   );
