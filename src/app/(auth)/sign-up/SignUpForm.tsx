@@ -1,7 +1,9 @@
+import SocialButton from "@/components/SocialButton";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { SignUpFormType, signUpSchema } from "@/lib/formSchema";
 import { zodResolver } from "@hookform/resolvers/zod";
+import Link from "next/link";
 import React from "react";
 import { useForm } from "react-hook-form";
 
@@ -21,8 +23,11 @@ const SignUpForm = () => {
   };
 
   return (
-    <div className="w-80 h-max p-6 flex flex-col gap-4 font-bold bg-gray-100 rounded-md">
-      <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-4">
+    <div className="w-80 h-max p-6 flex flex-col gap-4  bg-gray-100 rounded-md">
+      <form
+        onSubmit={handleSubmit(onSubmit)}
+        className="flex flex-col font-bold gap-4"
+      >
         <div>
           <label htmlFor="name">Name</label>
           <Input
@@ -31,7 +36,7 @@ const SignUpForm = () => {
             placeholder="Enter your name"
             {...register("name")}
           />
-          {errors.name && <p className="text-red-500">{errors.name.message}</p>}
+          {errors.name && <p className="text-red-500 text-sm">{errors.name.message}</p>}
         </div>
         <div>
           <label htmlFor="email">Email</label>
@@ -42,7 +47,7 @@ const SignUpForm = () => {
             {...register("email")}
           />
           {errors.email && (
-            <p className="text-red-500">{errors.email.message}</p>
+            <p className="text-red-500 text-sm">{errors.email.message}</p>
           )}
         </div>
         <div>
@@ -54,10 +59,10 @@ const SignUpForm = () => {
             {...register("password")}
           />
           {errors.password && (
-            <p className="text-red-500">{errors.password.message}</p>
+            <p className="text-red-500 text-sm">{errors.password.message}</p>
           )}
         </div>
-        <Button className="p-6" disabled={isSubmitting}>
+        <Button className="p-6 font-bold" disabled={isSubmitting}>
           Register
         </Button>
       </form>
@@ -67,8 +72,13 @@ const SignUpForm = () => {
         <span>Or continue with</span>
         <div className="flex-grow bg-gray-500 border-t-2" />
       </div>
-      {/* Social buttons
-       */}
+      <SocialButton />
+      <p className="text-sm text-gray-600">
+        Already have an Account?{" "}
+        <Link className="text-blue-500" href={"/login"}>
+          Login
+        </Link>
+      </p>
     </div>
   );
 };
