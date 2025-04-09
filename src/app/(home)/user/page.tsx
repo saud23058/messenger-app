@@ -1,17 +1,13 @@
-"use client"
-import { Button } from "@/components/ui/button";
-import { signOut } from "next-auth/react";
+
+
+import ChatSide from "@/components/ChatSide";
 import React from "react";
 
 const Users = () => {
   return (
-    <Button
-      onClick={() => {
-        signOut();
-      }}
-    >
-      Logout
-    </Button>
+    <div className="w-full  pl-90">
+      <ChatSide />
+    </div>
   );
 };
 
