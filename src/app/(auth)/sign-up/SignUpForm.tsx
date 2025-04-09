@@ -6,20 +6,36 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import Link from "next/link";
 import React from "react";
 import { useForm } from "react-hook-form";
+import axios from "axios";
+import toast from "react-hot-toast";
 
 const SignUpForm = () => {
   const {
     register,
     handleSubmit,
-    //setError,
+    setError,
     formState: { errors, isSubmitting },
   } = useForm<SignUpFormType>({
     mode: "onTouched",
     resolver: zodResolver(signUpSchema),
   });
 
-  const onSubmit = (data: SignUpFormType) => {
-    console.log(data);
+  const onSubmit = async (data: SignUpFormType) => {
+    try {
+      const res = await axios.post("/api/sign-up", data);
+      if (res.status === 201) {
+        toast.success(res.data.message);
+      }
+    } catch (error: any) {
+      if (error.response && error.response.data?.message) {
+        setError("email", {
+          type: "manual",
+          message: error.response.data.message,
+        });
+      } else {
+        toast.error("Something wrong");
+      }
+    }
   };
 
   return (
@@ -36,7 +52,9 @@ const SignUpForm = () => {
             placeholder="Enter your name"
             {...register("name")}
           />
-          {errors.name && <p className="text-red-500 text-sm">{errors.name.message}</p>}
+          {errors.name && (
+            <p className="text-red-500 text-sm">{errors.name.message}</p>
+          )}
         </div>
         <div>
           <label htmlFor="email">Email</label>

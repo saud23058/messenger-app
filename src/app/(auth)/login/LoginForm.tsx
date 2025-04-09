@@ -7,6 +7,10 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import Link from "next/link";
 import React from "react";
 import { useForm } from "react-hook-form";
+import { signIn } from "next-auth/react";
+import toast from "react-hot-toast";
+import { redirect } from "next/navigation";
+
 
 const LoginForm = () => {
   const {
@@ -20,7 +24,18 @@ const LoginForm = () => {
   });
 
   const onSubmit = (data: LoginFormType) => {
-    console.log(data);
+    signIn("credentials", {
+      ...data,
+      redirect: false,
+    }).then((e) => {
+      if (e?.error) {
+        toast.error("Invalid credentials");
+      }
+      if (e?.ok && !e.error) {
+        toast.success("Successfully logged in");
+        redirect('/user')
+      }
+    });
   };
 
   return (
