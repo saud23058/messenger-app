@@ -1,4 +1,6 @@
+import { getUsers } from "@/actions/getUsers";
 import SideBar from "@/components/sidebar/SideBar";
+import UserList from "@/components/UserList";
 import React from "react";
 
 const Layout = async ({
@@ -6,9 +8,16 @@ const Layout = async ({
 }: Readonly<{
   children: React.ReactNode;
 }>) => {
+  const users= await getUsers()
   return (
     <main>
-      <SideBar>{children}</SideBar>
+      <SideBar>
+        <div className="w-full">
+      
+          <UserList items={users}/>
+        {children}
+        </div>
+      </SideBar>
     </main>
   );
 };
